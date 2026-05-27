@@ -1,0 +1,29 @@
+◇ injected env (11) from .env // tip: ⌘ suppress logs { quiet: true }
+[13:18:48.395] [32mINFO[39m: [36mSentry: SENTRY_DSN no definido, captura desactivada[39m
+    env: "development"
+[13:18:48.399] [32mINFO[39m: [36mrate limiters listos[39m
+    env: "development"
+    backend: "memory"
+[13:18:48.415] [32mINFO[39m: [36mSaaS API escuchando[39m
+    env: "development"
+    port: 4000
+[13:18:48.422] [33mWARN[39m: [36mPostgres ping fallo; reintentando[39m
+    env: "development"
+    attempt: 1
+    retryInMs: 500
+    err: ""
+[13:18:48.924] [33mWARN[39m: [36mPostgres ping fallo; reintentando[39m
+    env: "development"
+    attempt: 2
+    retryInMs: 1000
+    err: ""
+[13:18:49.928] [33mWARN[39m: [36mPostgres ping fallo; reintentando[39m
+    env: "development"
+    attempt: 3
+    retryInMs: 2000
+    err: ""
+[13:18:51.931] [33mWARN[39m: [36mPostgres ping fallo; reintentando[39m
+    env: "development"
+    attempt: 4
+    retryInMs: 4000
+    err: ""

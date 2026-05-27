@@ -1,0 +1,17 @@
+{
+  "watch": ["src-saas"],
+  "ext": "js,mjs,cjs,json",
+  "ignore": [
+    "**/*.test.js",
+    "**/*.spec.js",
+    "src-saas/**/__mocks__/**",
+    "logs/**",
+    "tmp/**",
+    "coverage/**"
+  ],
+  "delay": "250",
+  "exec": "node src-saas/server.js",
+  "env": {
+    "NODE_OPTIONS": "--enable-source-maps"
+  }
+}

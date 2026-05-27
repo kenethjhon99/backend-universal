@@ -1,0 +1,80 @@
+◇ injected env (11) from .env // tip: ⌘ override existing { override: true }
+[13:20:35.051] [32mINFO[39m: [36mSentry: SENTRY_DSN no definido, captura desactivada[39m
+    env: "development"
+[13:20:35.054] [32mINFO[39m: [36mrate limiters listos[39m
+    env: "development"
+    backend: "memory"
+[13:20:35.066] [32mINFO[39m: [36mSaaS API escuchando[39m
+    env: "development"
+    port: 4000
+[13:20:35.073] [33mWARN[39m: [36mPostgres ping fallo; reintentando[39m
+    env: "development"
+    attempt: 1
+    retryInMs: 500
+    err: ""
+[13:20:35.588] [33mWARN[39m: [36mPostgres ping fallo; reintentando[39m
+    env: "development"
+    attempt: 2
+    retryInMs: 1000
+    err: ""
+[13:20:36.604] [33mWARN[39m: [36mPostgres ping fallo; reintentando[39m
+    env: "development"
+    attempt: 3
+    retryInMs: 2000
+    err: ""
+[13:20:36.835] [31mERROR[39m: [36mGET /api/saas/ready -> 503 failed with status code 503[39m
+    env: "development"
+    req: {
+      "id": "4f748298-a223-4bc7-9fcb-1f50a162474c",
+      "method": "GET",
+      "url": "/api/saas/ready"
+    }
+    userId: null
+    empresaId: null
+    sucursalId: null
+    res: {
+      "statusCode": 503
+    }
+    responseTime: 3
+    err: {
+      "type": "Error",
+      "message": "failed with status code 503",
+      "stack":
+          Error: failed with status code 503
+              at onResFinished (D:\sistema-universal\node_modules\.pnpm\pino-http@10.5.0\node_modules\pino-http\logger.js:115:39)
+              at ServerResponse.onResponseComplete (D:\sistema-universal\node_modules\.pnpm\pino-http@10.5.0\node_modules\pino-http\logger.js:178:14)
+              at ServerResponse.emit (node:events:530:35)
+              at onFinish (node:_http_outgoing:1082:10)
+              at callback (node:internal/streams/writable:766:21)
+              at afterWrite (node:internal/streams/writable:710:5)
+              at afterWriteTick (node:internal/streams/writable:696:10)
+              at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+    }
+[13:20:37.001] [32mINFO[39m: [36mGET /metrics -> 200[39m
+    env: "development"
+    req: {
+      "id": "1380962d-36f6-41ec-9ec4-df6ae5d720f9",
+      "method": "GET",
+      "url": "/metrics"
+    }
+    userId: null
+    empresaId: null
+    sucursalId: null
+    res: {
+      "statusCode": 200
+    }
+    responseTime: 4
+[13:20:37.032] [32mINFO[39m: [36mGET /api/saas/docs -> 200[39m
+    env: "development"
+    req: {
+      "id": "37bb2ea6-7e39-4742-8e0c-43ad56de6c4d",
+      "method": "GET",
+      "url": "/api/saas/docs"
+    }
+    userId: null
+    empresaId: null
+    sucursalId: null
+    res: {
+      "statusCode": 200
+    }
+    responseTime: 1
