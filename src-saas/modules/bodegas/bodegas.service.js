@@ -111,10 +111,109 @@ export const update = async ({ auth, idBodega, body }) => {
  */
 export const getPrincipalSucursal = async (client, { idEmpresa, idSucursal }) => {
   const r = await client.query(
-    `select id_bodega from bodegas
-     where id_empresa = $1 and id_sucursal = $2 and es_principal = true and activa = true
+    `select id_bodega, activa
+     from bodegas
+     where id_empresa = $1 and id_sucursal = $2 and es_principal = true
+     order by activa desc, id_bodega asc
      limit 1`,
     [idEmpresa, idSucursal]
   );
-  return r.rows[0]?.id_bodega || null;
+
+  let idBodega = r.rows[0]?.id_bodega || null;
+
+  if (idBodega && r.rows[0]?.activa !== true) {
+    await client.query(
+      `update bodegas
+       set activa = true, updated_at = now()
+       where id_empresa = $1 and id_bodega = $2`,
+      [idEmpresa, idBodega]
+    );
+  }
+
+  if (!idBodega) {
+    const promoted = await client.query(
+      `
+        update bodegas b
+        set es_principal = true,
+            activa = true,
+            updated_at = now()
+        where b.id_empresa = $1
+          and b.id_sucursal = $2
+          and upper(b.codigo) = 'PRINCIPAL'
+          and not exists (
+            select 1
+            from bodegas bp
+            where bp.id_empresa = b.id_empresa
+              and bp.id_sucursal = b.id_sucursal
+              and bp.es_principal = true
+          )
+        returning b.id_bodega
+      `,
+      [idEmpresa, idSucursal]
+    );
+    idBodega = promoted.rows[0]?.id_bodega || null;
+  }
+
+  if (!idBodega) {
+    const created = await client.query(
+      `
+        insert into bodegas (
+          id_empresa,
+          id_sucursal,
+          codigo,
+          nombre,
+          es_principal,
+          activa
+        )
+        values ($1,$2,'PRINCIPAL','Bodega principal',true,true)
+        on conflict (id_empresa, id_sucursal, codigo)
+        do nothing
+        returning id_bodega
+      `,
+      [idEmpresa, idSucursal]
+    );
+    idBodega = created.rows[0]?.id_bodega || null;
+  }
+
+  if (!idBodega) {
+    const fallback = await client.query(
+      `select id_bodega
+       from bodegas
+       where id_empresa = $1 and id_sucursal = $2 and es_principal = true
+       order by activa desc, id_bodega asc
+       limit 1`,
+      [idEmpresa, idSucursal]
+    );
+    idBodega = fallback.rows[0]?.id_bodega || null;
+  }
+
+  if (idBodega) {
+    await client.query(
+      `
+        insert into stock_sucursal (
+          id_empresa,
+          id_sucursal,
+          id_bodega,
+          id_producto,
+          stock_actual,
+          stock_minimo
+        )
+        select
+          p.id_empresa,
+          $2,
+          $3,
+          p.id_producto,
+          0,
+          0
+        from productos p
+        where p.id_empresa = $1
+          and p.activo = true
+        on conflict (id_empresa, id_sucursal, id_bodega, id_producto)
+        do nothing
+      `,
+      [idEmpresa, idSucursal, idBodega]
+    );
+  }
+
+  return idBodega;
 };

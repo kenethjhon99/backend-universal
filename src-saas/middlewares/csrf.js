@@ -63,16 +63,31 @@ const matchesAllowedOrigin = (originOrReferer) => {
 // ============================================================
 export const generateCsrfToken = () => crypto.randomBytes(32).toString("hex");
 
-export const getCsrfCookieOptions = () => ({
+export const getCsrfCookieOptions = () => {
+  const configuredSameSite = String(
+    process.env.COOKIE_SAMESITE || (isProd() ? "strict" : "lax")
+  )
+    .trim()
+    .toLowerCase();
+  const sameSite = ["strict", "lax", "none"].includes(configuredSameSite)
+    ? configuredSameSite
+    : isProd()
+      ? "strict"
+      : "lax";
+  const domain = String(process.env.COOKIE_DOMAIN || "").trim();
+
+  return {
   // NO httpOnly: el frontend necesita leerlo desde JS
   httpOnly: false,
-  secure: isProd(),
-  sameSite: isProd() ? "strict" : "lax",
+  secure: isProd() || sameSite === "none",
+  sameSite,
+  ...(domain ? { domain } : {}),
   // Path raiz: para que el navegador lo envie en cualquier request a /api/saas/*
   path: "/",
   // No seteamos maxAge: cookie de sesion (vive lo que vive la pestania).
   // Si querés que persista, agregalo aca alineado con refresh-tokens.
-});
+  };
+};
 
 export const CSRF_COOKIE = CSRF_COOKIE_NAME;
 export const CSRF_HEADER = CSRF_HEADER_NAME;

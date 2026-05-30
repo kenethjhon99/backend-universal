@@ -155,6 +155,61 @@ export const createCompanyWithAdmin = async (
   );
 
   const branch = branchResult.rows[0];
+  const warehouseResult = await client.query(
+    `
+      insert into bodegas (
+        id_empresa,
+        id_sucursal,
+        codigo,
+        nombre,
+        es_principal,
+        activa,
+        created_by,
+        updated_by
+      )
+      values ($1,$2,'PRINCIPAL','Bodega principal',true,true,$3,$3)
+      on conflict (id_empresa, id_sucursal, codigo)
+      do update set
+        es_principal = true,
+        activa = true,
+        updated_by = excluded.updated_by,
+        updated_at = now()
+      returning id_bodega
+    `,
+    [company.id_empresa, branch.id_sucursal, actorId]
+  );
+  const idBodegaPrincipal = warehouseResult.rows[0].id_bodega;
+
+  await client.query(
+    `
+      insert into stock_sucursal (
+        id_empresa,
+        id_sucursal,
+        id_bodega,
+        id_producto,
+        stock_actual,
+        stock_minimo,
+        created_by,
+        updated_by
+      )
+      select
+        p.id_empresa,
+        $2,
+        $3,
+        p.id_producto,
+        0,
+        0,
+        $4,
+        $4
+      from productos p
+      where p.id_empresa = $1
+        and p.activo = true
+      on conflict (id_empresa, id_sucursal, id_bodega, id_producto)
+      do nothing
+    `,
+    [company.id_empresa, branch.id_sucursal, idBodegaPrincipal, actorId]
+  );
+
   let admin = null;
 
   if (adminUsuario) {

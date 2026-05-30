@@ -254,10 +254,23 @@ export const revokeRefreshTokenById = async ({
 
 export const getRefreshCookieOptions = () => {
   const isDev = String(process.env.NODE_ENV).toLowerCase() !== "production";
+  const configuredSameSite = String(
+    process.env.COOKIE_SAMESITE || (isDev ? "lax" : "strict")
+  )
+    .trim()
+    .toLowerCase();
+  const sameSite = ["strict", "lax", "none"].includes(configuredSameSite)
+    ? configuredSameSite
+    : isDev
+      ? "lax"
+      : "strict";
+  const domain = String(process.env.COOKIE_DOMAIN || "").trim();
+
   return {
     httpOnly: true,
-    secure: !isDev,
-    sameSite: isDev ? "lax" : "strict",
+    secure: !isDev || sameSite === "none",
+    sameSite,
+    ...(domain ? { domain } : {}),
     path: "/api/saas/auth",
     maxAge: REFRESH_TTL_DAYS * 24 * 60 * 60 * 1000,
   };
