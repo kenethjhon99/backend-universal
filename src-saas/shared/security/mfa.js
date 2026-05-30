@@ -77,7 +77,7 @@ export const generateTotpSecret = () => authenticator.generateSecret();
  * Issuer es la marca del SaaS (configurable via env).
  */
 export const buildOtpAuthUri = ({ secret, accountLabel }) => {
-  const issuer = process.env.MFA_ISSUER || "POS SaaS";
+  const issuer = process.env.MFA_ISSUER || "TradeNova";
   return authenticator.keyuri(accountLabel, issuer, secret);
 };
 

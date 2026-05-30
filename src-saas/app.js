@@ -155,7 +155,7 @@ export const buildApp = async () => {
   const getOpenApiDoc = () => {
     if (!cachedOpenApiDoc) {
       cachedOpenApiDoc = buildOpenApiDocument({
-        title: "POS SaaS API",
+        title: "TradeNova API",
         version: "1.0.0",
         description: "API multi-tenant para POS + CarWash",
         serverUrl: "/api/saas",

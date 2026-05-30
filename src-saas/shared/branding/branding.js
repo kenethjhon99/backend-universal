@@ -1,7 +1,7 @@
 import { HttpError } from "../http/http-error.js";
 
 export const DEFAULT_BRANDING = {
-  nombre_comercial: process.env.SAAS_BRAND_NAME || "Sistema Universal POS",
+  nombre_comercial: process.env.SAAS_BRAND_NAME || "TradeNova",
   nombre_legal: null,
   slogan:
     process.env.SAAS_BRAND_SLOGAN ||

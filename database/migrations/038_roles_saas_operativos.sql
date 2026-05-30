@@ -21,7 +21,7 @@ values
   ('COMPRAS', 'Compras', 'Gestiona proveedores, compras y recepciones'),
   ('OPERADOR_CARWASH', 'Operador CarWash', 'Crea ordenes, actualiza estados y registra servicios realizados'),
   ('SUPERVISOR_CARWASH', 'Supervisor CarWash', 'Supervisa ordenes, productividad y autorizaciones de CarWash')
-on conflict (codigo) do update
+on conflict (codigo) where id_empresa is null do update
 set
   nombre = excluded.nombre,
   descripcion = excluded.descripcion,

@@ -166,7 +166,7 @@ export const registerPath = (opts) => {
  * Construye el documento OpenAPI 3.1 completo.
  */
 export const buildOpenApiDocument = ({
-  title = "POS SaaS API",
+  title = "TradeNova API",
   version = "1.0.0",
   description = "API multi-tenant para POS + CarWash",
   serverUrl = "/api/saas",
@@ -215,7 +215,7 @@ export const buildSwaggerUiHtml = (specUrl) => `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>POS SaaS API Docs</title>
+  <title>TradeNova API Docs</title>
   <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
   <style>body{margin:0}#swagger-ui{max-width:1200px;margin:0 auto}</style>
 </head>

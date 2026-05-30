@@ -144,7 +144,12 @@ create or replace view app.rls_diagnostico as
     (select count(*) from pg_roles where rolname = current_user and rolbypassrls) > 0 as bypassa_rls;
 
 grant select on app.rls_diagnostico to saas_app;
-grant select on app.rls_diagnostico to postgres;
+do $$
+begin
+  if exists (select 1 from pg_roles where rolname = 'postgres') then
+    grant select on app.rls_diagnostico to postgres;
+  end if;
+end $$;
 
 -- =========================================================================
 -- Verificacion manual (correr despues de migrar):

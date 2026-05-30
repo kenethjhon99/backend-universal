@@ -419,7 +419,7 @@ export const createCheckoutSession = async ({ auth, body, requestMeta = null }) 
         price_data: {
           currency: String(plan.moneda || "USD").toLowerCase(),
           product_data: {
-            name: `POS SaaS - ${plan.nombre}`,
+            name: `TradeNova - ${plan.nombre}`,
             description: plan.descripcion || undefined,
           },
           unit_amount: Math.round(Number(plan.precio_mensual) * 100),
@@ -514,7 +514,7 @@ export const createAddonCheckoutSession = async ({
         price_data: {
           currency: String(addon.moneda || "USD").toLowerCase(),
           product_data: {
-            name: `POS SaaS Add-on - ${addon.nombre}`,
+            name: `TradeNova Add-on - ${addon.nombre}`,
             description: addon.descripcion || undefined,
           },
           unit_amount: Math.round(Number(addon.precio) * 100),

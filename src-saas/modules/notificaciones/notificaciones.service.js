@@ -37,7 +37,7 @@ const EVENT_TEMPLATES = {
   },
   // ----- Billing / Subscription -----
   WELCOME_USER: {
-    asunto: "Bienvenido a POS SaaS",
+    asunto: "Bienvenido a TradeNova",
     cuerpo: ({ nombre, empresa, trial_dias }) =>
       `Hola ${nombre}, tu cuenta para "${empresa}" esta lista. ` +
       (trial_dias
@@ -270,7 +270,7 @@ export const sendTest = async ({ auth, idCanal }) => {
 
   await dispatch(canal, {
     asunto: "Notificacion de prueba",
-    cuerpo: `Test desde POS SaaS - ${new Date().toISOString()}`,
+    cuerpo: `Test desde TradeNova - ${new Date().toISOString()}`,
     destinatarios: canal.destinatarios || [],
     tipo_evento: "TEST",
     payload: { test: true },
