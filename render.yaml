@@ -1,0 +1,82 @@
+services:
+  - type: web
+    name: pos-saas-api
+    runtime: node
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /api/saas/health
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20.19.0
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: PGSSLMODE
+        value: require
+      - key: ALLOW_SUPERUSER_DB_IN_PRODUCTION
+        value: false
+      - key: API_DOCS_MODE
+        value: token
+      - key: MFA_REQUIRED_FOR_ADMINS
+        value: true
+      - key: COOKIE_SAMESITE
+        value: none
+      - key: PGHOST
+        sync: false
+      - key: PGPORT
+        value: 5432
+      - key: PGDATABASE
+        sync: false
+      - key: PGUSER
+        sync: false
+      - key: PGPASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: MFA_ENCRYPTION_KEY
+        sync: false
+      - key: MFA_CHALLENGE_SECRET
+        sync: false
+      - key: COMPANY_SELECTION_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: APP_DOMAIN
+        sync: false
+      - key: COOKIE_DOMAIN
+        sync: false
+      - key: METRICS_TOKEN
+        sync: false
+      - key: API_DOCS_TOKEN
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: SENTRY_ENVIRONMENT
+        value: production
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_SUCCESS_URL
+        sync: false
+      - key: STRIPE_CANCEL_URL
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_REGION
+        sync: false
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+      - key: S3_PUBLIC_URL_BASE
+        sync: false
