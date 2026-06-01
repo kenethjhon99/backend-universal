@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: pos-saas-api
+    name: tradenova-api
     runtime: node
     plan: starter
     autoDeploy: true
@@ -22,6 +22,12 @@ services:
         value: token
       - key: MFA_REQUIRED_FOR_ADMINS
         value: true
+      - key: MFA_ISSUER
+        value: TradeNova
+      - key: SAAS_BRAND_NAME
+        value: TradeNova
+      - key: SAAS_BRAND_SLOGAN
+        value: El sistema se adapta a tu negocio
       - key: COOKIE_SAMESITE
         value: none
       - key: PGHOST
