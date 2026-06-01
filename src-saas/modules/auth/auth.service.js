@@ -498,8 +498,8 @@ export const getPublicAuthContext = async ({ tenantContext = null } = {}) => {
   };
 };
 
-const getRoleCodesForUser = async (idEmpresa, idUsuario) => {
-  const rolesResult = await pool.query(
+const getRoleCodesForUser = async (db, idEmpresa, idUsuario) => {
+  const rolesResult = await db.query(
     `select r.codigo
      from usuarios_roles ur
      inner join roles r on r.id_rol = ur.id_rol
@@ -510,67 +510,77 @@ const getRoleCodesForUser = async (idEmpresa, idUsuario) => {
   return rolesResult.rows.map((row) => String(row.codigo).toUpperCase());
 };
 
-const completePasswordLogin = async ({ user, id_sucursal }) => {
-  // Verificar si el usuario tiene MFA habilitado. Si si, NO emitimos session
-  // completa: devolvemos un challenge token que el cliente debe canjear con
-  // un codigo TOTP en /auth/mfa/verify-login.
-  const { userHasMfaEnabled } = await import("../mfa/mfa.service.js");
-  const mfaEnabled = await userHasMfaEnabled(user.id_usuario);
+const completePasswordLogin = async ({ user, id_sucursal }) =>
+  runInTransaction(
+    async (client) => {
+      // Login es pre-auth: tras validar password abrimos contexto tenant para
+      // que RLS permita resolver roles, sucursales, MFA, branding y modulos.
+      const mfaResult = await client.query(
+        `select habilitado from usuarios_mfa where id_usuario = $1 limit 1`,
+        [user.id_usuario]
+      );
+      const mfaEnabled = mfaResult.rows[0]?.habilitado === true;
 
-  // MFA OBLIGATORIO para roles de administracion. Si no tiene MFA habilitado,
-  // permitimos el login (no podemos exigir lo que no esta enrolado todavia),
-  // pero devolvemos un flag para que el frontend lo redirija a enrollment
-  // antes de cualquier otra accion.
-  const roleCodes = await getRoleCodesForUser(user.id_empresa, user.id_usuario);
-  const requiresMfa = roleCodes.some((code) =>
-    ["SUPER_ADMIN", "SUPER_ADMIN_SAAS", "ADMIN_EMPRESA"].includes(code)
-  );
-  const mfaEnforced =
-    String(process.env.MFA_REQUIRED_FOR_ADMINS || "true").toLowerCase() !==
-    "false";
+      const roleCodes = await getRoleCodesForUser(
+        client,
+        user.id_empresa,
+        user.id_usuario
+      );
+      const requiresMfa = roleCodes.some((code) =>
+        ["SUPER_ADMIN", "SUPER_ADMIN_SAAS", "ADMIN_EMPRESA"].includes(code)
+      );
+      const mfaEnforced =
+        String(process.env.MFA_REQUIRED_FOR_ADMINS || "true").toLowerCase() !==
+        "false";
 
-  if (mfaEnabled) {
-    loginAttempts.inc({ result: "mfa_required" });
-    return {
-      mfa_required: true,
-      challenge_token: issueMfaChallenge({
-        idUsuario: user.id_usuario,
+      if (mfaEnabled) {
+        loginAttempts.inc({ result: "mfa_required" });
+        return {
+          mfa_required: true,
+          challenge_token: issueMfaChallenge({
+            idUsuario: user.id_usuario,
+            idEmpresa: user.id_empresa,
+          }),
+          requested_sucursal_id: id_sucursal || null,
+        };
+      }
+
+      let mfaEnrollmentRequired = false;
+      if (requiresMfa && mfaEnforced && !mfaEnabled) {
+        mfaEnrollmentRequired = true;
+        loginAttempts.inc({ result: "mfa_enrollment_required" });
+      }
+
+      loginAttempts.inc({ result: "success" });
+
+      await client.query(
+        `
+          update usuarios
+          set ultimo_login_at = now()
+          where id_usuario = $1
+        `,
+        [user.id_usuario]
+      );
+
+      const session = await buildSession(client, {
         idEmpresa: user.id_empresa,
-      }),
-      requested_sucursal_id: id_sucursal || null,
-    };
-  }
+        idUsuario: user.id_usuario,
+        requestedSucursalId: id_sucursal,
+      });
 
-  // Admin sin MFA enrolado: emitimos session pero marcamos que debe
-  // enrollarse YA. El frontend lee mfa_enrollment_required y fuerza la UI.
-  let mfaEnrollmentRequired = false;
-  if (requiresMfa && mfaEnforced && !mfaEnabled) {
-    mfaEnrollmentRequired = true;
-    loginAttempts.inc({ result: "mfa_enrollment_required" });
-  }
-
-  loginAttempts.inc({ result: "success" });
-
-  await pool.query(
-    `
-      update usuarios
-      set ultimo_login_at = now()
-      where id_usuario = $1
-    `,
-    [user.id_usuario]
+      return {
+        ...session,
+        ...(mfaEnrollmentRequired ? { mfa_enrollment_required: true } : {}),
+      };
+    },
+    {
+      auth: {
+        id_empresa: user.id_empresa,
+        id_usuario: user.id_usuario,
+        id_sucursal: id_sucursal || user.id_sucursal_default || null,
+      },
+    }
   );
-
-  const session = await buildSession(pool, {
-    idEmpresa: user.id_empresa,
-    idUsuario: user.id_usuario,
-    requestedSucursalId: id_sucursal,
-  });
-
-  return {
-    ...session,
-    ...(mfaEnrollmentRequired ? { mfa_enrollment_required: true } : {}),
-  };
-};
 
 const loginLegacy = async ({
   empresa_slug,
