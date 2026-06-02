@@ -501,7 +501,7 @@ export const listVentas = async ({ db, auth, scope, query }) => {
   }));
 };
 
-export const createVenta = async ({ auth, scope, body, requestMeta = null }) =>
+export const createVenta = async ({ db, auth, scope, body, requestMeta = null }) =>
   runInTransaction(
     async (client) => {
       const items = Array.isArray(body?.items) ? body.items : [];
@@ -993,10 +993,11 @@ export const createVenta = async ({ auth, scope, body, requestMeta = null }) =>
 
       return created;
     },
-    { auth }
+    { auth, dbContext: db }
   );
 
 export const createVentaReversion = async ({
+  db,
   auth,
   scope,
   idVenta,
@@ -1382,7 +1383,7 @@ export const createVentaReversion = async ({
 
       return updated;
     },
-    { auth }
+    { auth, dbContext: db }
   );
 
 export const getVentaById = async ({ db, auth, idVenta }) =>

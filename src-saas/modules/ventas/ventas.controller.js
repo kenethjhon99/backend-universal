@@ -15,6 +15,7 @@ export const listVentas = asyncHandler(async (req, res) => {
 
 export const createVenta = asyncHandler(async (req, res) => {
   const data = await service.createVenta({
+    db: req.db,
     auth: req.auth,
     scope: req.scope,
     body: req.body,
@@ -36,6 +37,7 @@ export const getVentaById = asyncHandler(async (req, res) => {
 
 export const createVentaReversion = asyncHandler(async (req, res) => {
   const data = await service.createVentaReversion({
+    db: req.db,
     auth: req.auth,
     scope: req.scope,
     idVenta: Number(req.params.id),

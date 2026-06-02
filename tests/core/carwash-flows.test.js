@@ -272,13 +272,14 @@ describeFn("Fase 3 CarWash flows", () => {
     });
     expect(Number(caja.rows[0].monto)).toBe(110);
 
+    const todayStr = new Date().toISOString().split("T")[0];
     const report = await serviciosAdvancedService.getServiceOperationsReport({
       auth,
       scope,
       query: {
         modulo: "CARWASH",
-        desde: "2026-05-26",
-        hasta: "2026-05-26",
+        desde: todayStr,
+        hasta: todayStr,
       },
     });
     expect(report.resumen.ordenes_total).toBe(1);

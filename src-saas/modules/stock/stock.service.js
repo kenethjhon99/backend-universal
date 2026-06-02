@@ -63,7 +63,8 @@ const getStockBaseQuery = () => `
 `;
 
 const getStockItem = async ({ db, auth, idSucursal, idProducto, forUpdate = false }) => {
-  const idBodega = await getPrincipalSucursal(db, {
+  const conn = resolveDb(db);
+  const idBodega = await getPrincipalSucursal(conn, {
     idEmpresa: auth.id_empresa,
     idSucursal,
   });
@@ -73,7 +74,7 @@ const getStockItem = async ({ db, auth, idSucursal, idProducto, forUpdate = fals
   }
 
   const lockingClause = forUpdate ? "for update of ss" : "";
-  const result = await db.query(
+  const result = await conn.query(
     `
       ${getStockBaseQuery()}
       where ss.id_empresa = $1
@@ -136,11 +137,17 @@ export const listStock = async ({ db, auth, scope, query }) => {
     );
   }
 
+  // Auditoría: Añadir paginación obligatoria
+  const limit = Math.max(1, Math.min(Number(query?.limit) || 50, 200));
+  const offset = Math.max(0, Number(query?.offset) || 0);
+  params.push(limit, offset);
+
   const result = await conn.query(
     `
       ${getStockBaseQuery()}
       where ${filters.join(" and ")}
       order by bajo_minimo desc, p.nombre asc, p.sku asc
+      limit $${index} offset $${index + 1}
     `,
     params
   );

@@ -68,13 +68,12 @@ export const withTenantDb = async (req, res, next) => {
 
     if (req.auth) {
       const settings = [
-        ["app.current_empresa_id", req.auth.id_empresa],
-        ["app.current_sucursal_id", req.auth.id_sucursal],
-        ["app.current_usuario_id", req.auth.id_usuario],
-        ["app.current_rol", req.auth.rol],
+        ["app.current_empresa_id", req.auth.id_empresa || ""],
+        ["app.current_sucursal_id", req.auth.id_sucursal || ""],
+        ["app.current_usuario_id", req.auth.id_usuario || ""],
+        ["app.current_rol", req.auth.rol || ""],
       ];
       for (const [key, value] of settings) {
-        if (value === undefined || value === null || value === "") continue;
         // set_config(name, value, is_local=false) → setting de SESION
         // (sobrevive a transacciones internas, reseteado manualmente al release)
         await client.query("select set_config($1, $2, false)", [
