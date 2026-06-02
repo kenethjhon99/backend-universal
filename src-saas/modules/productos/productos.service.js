@@ -379,6 +379,7 @@ export const createProducto = async ({ auth, body }) =>
       }
 
       return getProductoById({
+        db: client,
         auth,
         idProducto: product.id_producto,
         idSucursal: auth.id_sucursal,
@@ -518,6 +519,7 @@ export const updateProducto = async ({ auth, idProducto, idSucursal, body }) =>
       }
 
       return getProductoById({
+        db: client,
         auth,
         idProducto,
         idSucursal,
